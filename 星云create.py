@@ -28,32 +28,51 @@ class AR_poly(object):
 class tplink(object):
     use = None
 
-    def __init__(self, time, pname, long, kkk, pnumber,  shipname='ship'):
-        self.time = time
+    def __init__(self, pname, long, shipname='ship'):
+
         self.pname = pname
         self.long = long
-        self.kkk = kkk
-        self.pnumber = pnumber
+
+
         #self.abgle = abgle
         self.name = shipname
         self.eel = []
+        self.vortname = 'vortX'
         tplink.use = self
 
-    def run(self):
-        cmds.polyCube(h=self.time)
+
 
     def create(self, *args):
-        abgle = None
+        agle = None
         try:
             path = '|'.join(['box','getagle'])
-            abgle = float(cmds.textField(path,q=True,text=True))
-        except:raise 
+            agle = float(cmds.textField(path,q=True,text=True))
+        except:raise
+
+        abgle = (math.pi / 180) * agle
 
 
-        for i in range(self.pnumber):
-            self.eel.append((random.uniform(-1, 1), random.uniform(-2, 2), random.uniform(-1 * self.long, self.long)))
+        self.kkk =int( 180/agle)
+
+        high = None
+        try :
+            high_path = '|'.join(['box','gethigh'])
+            high = float(cmds.textField(high_path,q = True,text = True))
+        except : raise
+
+
+
+        pnumber = None
+        try:
+            pnumber_path = '|'.join(['box','getpnumber'])
+            pnumber = int(cmds.textField(pnumber_path,q=True,text = True))
+        except:raise
+
+
+        for i in range(pnumber):
+            self.eel.append((random.uniform(-1, 1), random.uniform(-1*high, high), random.uniform(-1 * self.long, self.long)))
         for i in range(self.kkk):
-            for i in range(self.pnumber):
+            for i in range(pnumber):
                 cos = math.cos(abgle * i)
                 sin = math.sin(abgle * i)
                 self.eel.append((self.eel[i][0] * cos + self.eel[i][2] * sin, self.eel[i][1],
@@ -64,6 +83,17 @@ class tplink(object):
         cmds.setAttr("%sShape.particleRenderType" % self.name, 4)
 
 
-opcc = tplink(time=3, pname='fut', long=20, kkk=4, pnumber=500)
+
+
+
+
+
+    def link(self, *args):
+        cmds.vortex(n=self.vortname, pos=(0, 0, 0), m=5, ay=1, att=1, mxd=-1, vsw=360, tsr=0.5)
+
+        cmds.connectAttr('%s.outputForce[0]' % self.vortname, '%sShape.inputForce[0]' % self.name)
+        cmds.connectAttr('%sShape.fieldData' % self.name, '%s.inputData[0]' % self.vortname)
+        cmds.connectAttr('%sShape.ppFieldData[0]' % self.name, '%s.inputPPData[0]' % self.vortname)
+opcc = tplink( pname='fut', long=20)
 win = AR_poly(os.path.join(os.getenv('HOME'), 'poly.ui'))
 win.create()
