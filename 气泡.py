@@ -17,10 +17,7 @@ class jbface_popo(object):
         cmds.select(cl=True)
         mygr = gravity(name=vname, dy=1.0)
 
-        cmds.connectAttr('%s.outputForce[0]' % vname, '%sShape.inputForce[0]' % pname)
-        cmds.connectAttr('%sShape.fieldData' % pname, '%s.inputData[0]' % vname)
-        cmds.connectAttr('%sShape.ppFieldData[0]' % pname, '%s.inputPPData[0]' % vname)
-
+        connectDynamic(mypa,f = mygr)
 
 
 
